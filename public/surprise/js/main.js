@@ -7,7 +7,8 @@ window.onload = function() {
 
 var i = 0,
     x = 0,
-    lastScrollTop = 0;
+    lastScrollTop = 0,
+    myState = 0;
 
 //scroll up or down
 //$(window).scroll(function(event){
@@ -38,29 +39,54 @@ function dotRotate(){
 }
 
 // main function
-$(document).ready(function(){
+
+$(document).imagesLoaded(function(){
+
+    
     var w = $(window).width(),
-        h = $('.landing-container').innerHeight();
+        h = $('.landing-container').innerHeight(),
+        landingBoxH = $('.landing-box').height(),
+        landingPadding = ( (h - landingBoxH) / 2 ) + "px",
+        paddingH = (h * 0.25)+"px";
+   
+    
+    $('.landing-box').css('padding-top',landingPadding);
+    $('.cut-wrapper').css('padding-top',paddingH);
+    
     
     $('.landing-box,.cut-wrapper,.cut-2-wrapper').css("height",(h+"px"));
     //讓dot與星球轉
     dotRotate();
     
     //scroll function lock
+    
     $('.main-container').on('scroll touchmove mousewheel', function(e){
+        if ( w > 776){
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    })
+    
+    $('.lock-landing-box').on('scroll touchmove mousewheel', function(e){
         e.preventDefault();
         e.stopPropagation();
         return false;
     })
 
-    // Afu function test
-    function test(par){
-        console.log(par); // 印出
-        par++; // 累加數值
-        if(par>3) return false;   // 跳脫點
-        setTimeout('test('+par+')',1000);  // 遞迴
-    }
-    setTimeout('test('+1+')',1000);   // 進入點
+    
+    //lock spcae
+    
+    $(document).on({
+        keydown: function(e) {
+            if (e.which === 32)
+                return false;
+        },
+        change: function() {
+            this.value = this.value.replace(/\s/g, "");
+        }
+    });
+  
     
     //控制桌機才跑landing動畫
     if (w>776){
@@ -112,45 +138,131 @@ function floatReset(){
 
 
 $(document).ready(function(){
-    $('.go-next').bind('click',function(){
-        var wheretoGo =( "#cut"+ $(this).attr('rel')),
-            $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body'),
-            addRel = parseInt( $(this).attr('rel') )+ 1;
+    $('.gogo-btn').bind('click',function(){
+       
+        var menuState = $(this).attr('menuState'),
+            WindowWidth = $(window).width();
+        
+        
+        var w = $(window).width(),
+            h = $('.landing-container').innerHeight(),
+            paddingH = (h * 0.115)+"px";
+        
+        if(menuState==1){
+            myState = 1
+        }
+        
+        if(menuState==2){
+            myState = 2
+        }
+        
+        if(menuState==3){
+            myState = 3
+        }
+        
+        if(menuState==4){
+            myState = 4;
+            $('#countdown').fadeIn(700);
+            $('#subscribe').fadeOut(0);
+        }
+        
+        if(menuState==5){
+            myState = 4;
+            $('#countdown').fadeOut(700);
+            $('#subscribe').delay(710).fadeIn(700);
+        }
+        
+        if(menuState==undefined){
+            myState == myState;
+            myState ++;
+        }
+        
+        
+        var wheretoGo =( "#cut"+ myState),
+            $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');
+        
         $body.animate({
             scrollTop: $(wheretoGo).offset().top
         }, 700);
         // 如果是cut1則跑
-        if(wheretoGo=="#cut1"){
-            $('.landing-container').css("background","#f2f2f2");
-            $('.float-items , .go-next').stop().fadeOut(300);
-            $('.top-nav,.pink-btn').delay(300).fadeIn(700);
-           setTimeout(slowMotion,700);
+        if(wheretoGo=="#cut1" && WindowWidth>776){
             
-            function slowMotion(){
-                $('.cut-1-img').css({
-                    "top":"0px",
-                    "opacity":"1"
-                });
-            }
-        }
-        if(wheretoGo=="#cut3"){
-            setTimeout('dollToggle('+0+')',500); 
+            $('.float-items , .go-next').stop().fadeOut(300);
+            $('.top-nav').delay(300).fadeIn(700);
+            $('.cut-content').delay(550).fadeIn(1350);
+            setTimeout(boxbox,1350);
+            $('.goSubscribe-container').delay(3050).fadeIn(700);
+        };
+        
+        if(wheretoGo=="#cut1" && WindowWidth<776){
+            $('.lock-landing-box').css("display","none");
+            $('.float-items , .go-next').stop().fadeOut(300);
+            $('.top-nav').delay(300).fadeIn(700);
+            $('.cut-content,.mobile-box').delay(550).fadeIn(1350);
         }
         
-        if(wheretoGo=="#cut4"){
-
-            setTimeout(boxbox,650);
+        if(wheretoGo=="#cut2"){
             $(this).fadeOut(700);
+            $('#cut2').css('padding-top',paddingH);
+            $('.footer-box').css("bottom","0px")
         }
-        $(this).attr('rel',addRel)
+        
+       $(window).scroll(function(){
+           var wS = $(window).scrollTop(),
+               w1 = $('#cut1').offset().top - 300,
+               w2 = $('#cut2').offset().top - 300;
+           
+            if(wS > w2){
+                $('#cut2').css('padding-top',paddingH);
+                $('.footer-box').css("bottom","0px")
+            }
+           if(wS<w2){
+               
+               $('.footer-box').css("bottom","-100px")
+           }
+
+       })
+        
+    });
+    
+    $('.goSubscribe-btn').click(function(){
+        var w = $(window).width();
+        if(w>776){
+            $('.cut-content').css('opacity','0');
+            $(this).fadeOut(700);
+           boxContent(); 
+        }
     });
 
     // countdown scribe toggle
 
     $('.free-experience').click(function(){
-        $('#countdown').fadeOut(700);
-        $('#subscribe').delay(710).fadeIn(700);
-    })
+        var w = $(window).width();
+        if(w>776){
+            $('.countdown').fadeOut(700);
+            $('#subscribe').delay(710).fadeIn(700);
+            $('.footer').delay(1410).fadeIn(700);
+        }
+    });
+    
+    $('.free-xs-experience').click(function(){
+        $('.countdown').fadeOut(700);
+        $('#subscribe-xs').delay(700).fadeIn(700);
+        $('.cut-wrapper').css("overflow","visible");
+    });
+    
+    // lightbox fn
+    
+    $('.lightbox-cancel,.checked').click(function(){
+        if ($("input[name='privacy']").is(":checked")){
+            $('.lightbox').fadeToggle(700); 
+            $('body').toggleClass('unscroll');
+        }
+        if ($("input[name='privacy-mobile']").is(":checked")){
+            $('.lightbox').fadeToggle(700); 
+
+        }
+    });
 
 
 });
@@ -169,14 +281,14 @@ function dollToggle(par){
 
 function boxbox(){
     $('.box-box').addClass('box-box-position');
-    $('.landing-container').css("background","#000000");
-    setTimeout(boxContent,1500);
+    
 }
 
 function boxContent(){
-    $('.left-box').addClass("rotate-left");
+    $('.left-box').addClass("rotate-left"); 
     $('.right-box').addClass("rotate-right");
-    $('.subscribe-container').css('opacity',1);
+    $('.subscribe-box').css('opacity',1);
+    $('.box-box-position').css('top','0px');
     setTimeout(light,1000);
 }
 
@@ -186,6 +298,10 @@ function light(){
 }
 
 function pig(){
-    $('.subscribe-container').css('bottom','0px');
+    $('.subscribe-box').css('bottom','0px');
 }
+
+
+// scroll lock
+
 
